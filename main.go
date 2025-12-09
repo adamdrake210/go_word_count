@@ -7,18 +7,22 @@ import (
 
 func main() {
 	data, _ := os.ReadFile("./words.txt")
-	_ = data
 
+	wordCount := countWords(data)
+
+	fmt.Println(wordCount)
+}
+
+func countWords(data []byte) int {
 	wordCount := 0
-	const spaceChar = 32
 
-	for i, x := range data {
-		_ = i
-		if x == spaceChar {
+	for _, x := range data {
+		if x == ' ' {
 			wordCount++
 		}
 	}
+
 	wordCount += 1
 
-	fmt.Println(wordCount)
+	return wordCount
 }
