@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"unicode"
 )
 
 func main() {
@@ -14,18 +15,16 @@ func main() {
 }
 
 func CountWords(data []byte) int {
-	if len(data) == 0 {
-		return 0
-	}
 	wordCount := 0
 
+	wasSpace := true
 	for _, x := range data {
-		if x == ' ' {
+		isSpace := unicode.IsSpace(rune(x))
+		if wasSpace && !isSpace {
 			wordCount++
 		}
+		wasSpace = isSpace
 	}
-
-	wordCount += 1
 
 	return wordCount
 }
