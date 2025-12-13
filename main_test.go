@@ -3,33 +3,50 @@ package main
 import "testing"
 
 func TestCountWords(t *testing.T) {
-	input := "one two three four five"
-	wants := 5
-
-	result := CountWords([]byte(input))
-
-	if result != wants {
-		t.Logf("expected: %d got: %d", wants, result)
-		t.Fail()
+	testCases := []struct {
+		name  string
+		input string
+		wants int
+	}{
+		{
+			name:  "5 words",
+			input: "one two three four five",
+			wants: 5,
+		},
+		{
+			name:  "5 words with space at beginning",
+			input: " one two three four five",
+			wants: 5,
+		},
+		{
+			name:  "empty input",
+			input: "",
+			wants: 0,
+		},
+		{
+			name:  "space empty",
+			input: " ",
+			wants: 0,
+		},
+		{
+			name:  "new line",
+			input: "one two three\nfour five",
+			wants: 5,
+		},
+		{
+			name:  "double space",
+			input: "one two three.  Four five six",
+			wants: 6,
+		},
 	}
 
-	input = ""
-	wants = 0
-
-	result = CountWords([]byte(input))
-
-	if result != wants {
-		t.Logf("expected: %d got: %d", wants, result)
-		t.Fail()
-	}
-
-	input = " "
-	wants = 0
-
-	result = CountWords([]byte(input))
-
-	if result != wants {
-		t.Logf("expected: %d got: %d", wants, result)
-		t.Fail()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := CountWords([]byte(tc.input))
+			if result != tc.wants {
+				t.Logf("expected: %d got: %d", tc.wants, result)
+				t.Fail()
+			}
+		})
 	}
 }
