@@ -38,6 +38,16 @@ func TestCountWords(t *testing.T) {
 			input: "one two three.  Four five six",
 			wants: 6,
 		},
+		{
+			name:  "Suffix",
+			input: "one two three.   ",
+			wants: 3,
+		},
+		{
+			name:  "Tab character",
+			input: "Hello\tWord\n",
+			wants: 2,
+		},
 	}
 
 	for _, tc := range testCases {
