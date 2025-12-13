@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"unicode"
 )
 
 func main() {
-	data, _ := os.ReadFile("./words.txt")
+	data, err := os.ReadFile("./wors.txt")
+	if err != nil {
+		log.Fatalln("failed to read file:", err)
+	}
 
 	wordCount := CountWords(data)
 
