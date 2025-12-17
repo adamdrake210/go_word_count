@@ -1,0 +1,2 @@
+2025/12/13 16:51:14 failed to read file: open ./wors.txt: no such file or directory
+exit status 1
