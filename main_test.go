@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"strings"
 	"testing"
 
 	counter "github.com/adamdrake210/word_counter"
@@ -56,7 +57,7 @@ func TestCountWords(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := counter.CountWords([]byte(tc.input))
+			result := counter.CountWords(strings.NewReader(tc.input))
 			if result != tc.wants {
 				t.Logf("expected: %d got: %d", tc.wants, result)
 				t.Fail()
