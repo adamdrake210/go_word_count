@@ -17,9 +17,15 @@ func main() {
 
 	total := 0
 	filenames := os.Args[1:]
+	didError := false
 
 	for _, filename := range os.Args[1:] {
-		wordCount := CountWordsInFile(filename)
+		wordCount, err := CountWordsInFile(filename)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "counter:", err)
+			didError = true
+			continue
+		}
 		total = total + wordCount
 		fmt.Println(wordCount, filename)
 	}
@@ -28,6 +34,9 @@ func main() {
 		fmt.Println(total, "total")
 	}
 
+	if didError {
+		os.Exit(1)
+	}
 }
 
 func CountWords(file io.Reader) int {
@@ -40,71 +49,16 @@ func CountWords(file io.Reader) int {
 		countWords++
 	}
 
-	//**********
-	// Using bufio.NewReader()
-	// *********
-	// isInsideWord := false
-
-	// _ = isInsideWord
-
-	// reader := bufio.NewReader(file)
-
-	// for {
-	// 	r, _, err := reader.ReadRune()
-
-	// 	if err != nil {
-	// 		break
-	// 	}
-
-	// 	if !unicode.IsSpace(r) && !isInsideWord {
-	// 		countWords++
-	// 	}
-
-	// 	isInsideWord = !unicode.IsSpace(r)
-	// }
-
-	//**********
-	// Doing it the long way
-	// *********
-	// const bufferSize = 2
-	// buffer := make([]byte, bufferSize)
-	// leftover := []byte{}
-
-	// for {
-	// 	size, err := file.Read(buffer)
-	// 	if err != nil {
-	// 		break
-	// 	}
-
-	// 	subBuffer := append(leftover, buffer[:size]...)
-	// 	for len(subBuffer) > 0 {
-
-	// 		r, rsize := utf8.DecodeRune(subBuffer)
-	// 		if r == utf8.RuneError {
-	// 			break
-	// 		}
-	// 		subBuffer = subBuffer[rsize:]
-
-	// 		if !unicode.IsSpace(r) && !isInsideWord {
-	// 			countWords++
-	// 		}
-
-	// 		isInsideWord = !unicode.IsSpace(r)
-	// 	}
-
-	// 	leftover = nil
-	// 	leftover = append(leftover, subBuffer...)
-	// }
 	return countWords
 }
 
-func CountWordsInFile(filename string) int {
+func CountWordsInFile(filename string) (int, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatalln("failed to read file:", err)
+		return 0, err
 	}
 
-	return CountWords(file)
+	return CountWords(file), nil
 }
 
 // func CountWords(data []byte) int {
