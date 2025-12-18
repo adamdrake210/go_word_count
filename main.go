@@ -9,18 +9,25 @@ import (
 )
 
 func main() {
-	filename := "./words.txt"
-
 	log.SetFlags(0)
 
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatalln("failed to read file:", err)
+	if len(os.Args) < 2 {
+		log.Fatalln("error: no filename specified")
 	}
 
-	wordCount := CountWords(file)
+	total := 0
+	filenames := os.Args[1:]
 
-	fmt.Println(wordCount)
+	for _, filename := range os.Args[1:] {
+		wordCount := CountWordsInFile(filename)
+		total = total + wordCount
+		fmt.Println(wordCount, filename)
+	}
+
+	if len(filenames) > 1 {
+		fmt.Println(total, "total")
+	}
+
 }
 
 func CountWords(file io.Reader) int {
@@ -89,6 +96,15 @@ func CountWords(file io.Reader) int {
 	// 	leftover = append(leftover, subBuffer...)
 	// }
 	return countWords
+}
+
+func CountWordsInFile(filename string) int {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalln("failed to read file:", err)
+	}
+
+	return CountWords(file)
 }
 
 // func CountWords(data []byte) int {
