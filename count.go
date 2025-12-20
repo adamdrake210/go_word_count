@@ -31,3 +31,22 @@ func CountWordsInFile(filename string) (int, error) {
 
 	return count, nil
 }
+
+func CountLines(r io.Reader) int {
+	countLines := 0
+
+	reader := bufio.NewReader(r)
+
+	for {
+		r, _, err := reader.ReadRune()
+		if err != nil {
+			break
+		}
+
+		if r == '\n' {
+			countLines++
+		}
+	}
+
+	return countLines
+}
