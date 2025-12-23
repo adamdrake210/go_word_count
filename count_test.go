@@ -57,7 +57,8 @@ func TestCountWords(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := counter.CountWords(strings.NewReader(tc.input))
+			result := counter.GetCounts(strings.NewReader(tc.input)).Words
+
 			if result != tc.wants {
 				t.Logf("expected: %d got: %d", tc.wants, result)
 				t.Fail()
@@ -108,10 +109,83 @@ func TestCountLines(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r := strings.NewReader(tc.input)
 
-			numLines := counter.CountLines(r)
+			res := counter.GetCounts(r).Lines
 
-			if numLines != tc.wants {
-				t.Logf("expected: %d, got %d", tc.wants, numLines)
+			if res != tc.wants {
+				t.Logf("expected: %d, got %d", tc.wants, res)
+				t.Fail()
+			}
+		})
+	}
+}
+
+func TestCountBytes(t *testing.T) {
+	testCases := []struct {
+		name  string
+		input string
+		wants int
+	}{
+		{
+			name:  "simple five words",
+			input: "one two three four five",
+			wants: 23,
+		},
+		{
+			name:  "empty file",
+			input: "",
+			wants: 0,
+		},
+		{
+			name:  "all spaces",
+			input: "       ",
+			wants: 7,
+		},
+		{
+			name:  "newlines and words",
+			input: "one\ntwo\nthree\nfour\nfive\t\n",
+			wants: 25,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			r := strings.NewReader(tc.input)
+
+			numBytes := counter.GetCounts(r).Bytes
+
+			if numBytes != tc.wants {
+				t.Logf("expected: %d, got %d", tc.wants, numBytes)
+				t.Fail()
+			}
+		})
+	}
+}
+
+func TestGetCounts(t *testing.T) {
+	testCases := []struct {
+		name  string
+		input string
+		wants counter.Counts
+	}{
+		{
+			name:  "simple five words",
+			input: "one two three four five\n",
+			wants: counter.Counts{
+				Lines: 1,
+				Words: 5,
+				Bytes: 24,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			r := strings.NewReader(tc.input)
+
+			res := counter.GetCounts(r)
+
+			if res != tc.wants {
+				t.Logf("expected: %d, got %d", tc.wants, res)
 				t.Fail()
 			}
 		})

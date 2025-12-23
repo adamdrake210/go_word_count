@@ -19,17 +19,33 @@ func CountWords(file io.Reader) int {
 	return countWords
 }
 
-func CountWordsInFile(filename string) (int, error) {
+type Counts struct {
+	Bytes int
+	Words int
+	Lines int
+}
+
+func GetCounts(file io.ReadSeeker) Counts {
+	const offsetStart = 0
+
+	bytes := CountBytes(file)
+	file.Seek(offsetStart, io.SeekStart)
+	lines := CountLines(file)
+	file.Seek(offsetStart, io.SeekStart)
+	words := CountWords(file)
+
+	return Counts{Bytes: bytes, Lines: lines, Words: words}
+}
+
+func CountFile(filename string) (Counts, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return 0, err
+		return Counts{}, err
 	}
 
 	defer file.Close()
 
-	count := CountWords(file)
-
-	return count, nil
+	return GetCounts(file), nil
 }
 
 func CountLines(r io.Reader) int {
@@ -49,4 +65,9 @@ func CountLines(r io.Reader) int {
 	}
 
 	return countLines
+}
+
+func CountBytes(r io.Reader) int {
+	byteCount, _ := io.Copy(io.Discard, r)
+	return int(byteCount)
 }
