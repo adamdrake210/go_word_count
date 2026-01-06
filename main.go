@@ -20,16 +20,14 @@ func main() {
 			didError = true
 			continue
 		}
-		totals = Counts{
-			Bytes: totals.Bytes + counts.Bytes,
-			Words: totals.Words + counts.Words,
-			Lines: totals.Lines + counts.Lines,
-		}
+
+		totals = totals.Add(counts)
+
 		counts.Print(os.Stdout, filename)
 	}
 
 	if len(filenames) == 0 {
-		GetCounts(os.Stdin).Print(os.Stdout, "")
+		GetCounts(os.Stdin).Print(os.Stdout)
 	}
 
 	if len(filenames) > 1 {
