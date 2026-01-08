@@ -1,94 +1,42 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 )
 
 func main() {
-	filename := "./words.txt"
-
 	log.SetFlags(0)
 
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatalln("failed to read file:", err)
+	totals := Counts{}
+	filenames := os.Args[1:]
+	didError := false
+
+	for _, filename := range os.Args[1:] {
+		counts, err := CountFile(filename)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "counter:", err)
+			didError = true
+			continue
+		}
+
+		totals = totals.Add(counts)
+
+		counts.Print(os.Stdout, filename)
 	}
 
-	wordCount := CountWords(file)
-
-	fmt.Println(wordCount)
-}
-
-func CountWords(file io.Reader) int {
-	countWords := 0
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanWords)
-
-	for scanner.Scan() {
-		countWords++
+	if len(filenames) == 0 {
+		GetCounts(os.Stdin).Print(os.Stdout)
 	}
 
-	//**********
-	// Using bufio.NewReader()
-	// *********
-	// isInsideWord := false
+	if len(filenames) > 1 {
+		totals.Print(os.Stdout, "total")
+	}
 
-	// _ = isInsideWord
-
-	// reader := bufio.NewReader(file)
-
-	// for {
-	// 	r, _, err := reader.ReadRune()
-
-	// 	if err != nil {
-	// 		break
-	// 	}
-
-	// 	if !unicode.IsSpace(r) && !isInsideWord {
-	// 		countWords++
-	// 	}
-
-	// 	isInsideWord = !unicode.IsSpace(r)
-	// }
-
-	//**********
-	// Doing it the long way
-	// *********
-	// const bufferSize = 2
-	// buffer := make([]byte, bufferSize)
-	// leftover := []byte{}
-
-	// for {
-	// 	size, err := file.Read(buffer)
-	// 	if err != nil {
-	// 		break
-	// 	}
-
-	// 	subBuffer := append(leftover, buffer[:size]...)
-	// 	for len(subBuffer) > 0 {
-
-	// 		r, rsize := utf8.DecodeRune(subBuffer)
-	// 		if r == utf8.RuneError {
-	// 			break
-	// 		}
-	// 		subBuffer = subBuffer[rsize:]
-
-	// 		if !unicode.IsSpace(r) && !isInsideWord {
-	// 			countWords++
-	// 		}
-
-	// 		isInsideWord = !unicode.IsSpace(r)
-	// 	}
-
-	// 	leftover = nil
-	// 	leftover = append(leftover, subBuffer...)
-	// }
-	return countWords
+	if didError {
+		os.Exit(1)
+	}
 }
 
 // func CountWords(data []byte) int {
