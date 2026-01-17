@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func CountWords(file io.Reader) int {
@@ -33,23 +35,36 @@ func (c Counts) Add(other Counts) Counts {
 	return c
 }
 
-func (c Counts) Print(w io.Writer, filenames ...string) {
-	fmt.Fprintf(w, "%d %d %d", c.Lines, c.Words, c.Bytes)
+func (c Counts) Print(w io.Writer, opts DisplayOptions, suffixes ...string) {
+	xs := []string{}
 
-	for _, filename := range filenames {
-		fmt.Fprintf(w, " %s", filename)
+	if opts.ShouldShowLines() {
+		xs = append(xs, strconv.Itoa(c.Lines))
 	}
 
-	fmt.Fprintf(w, "\n")
+	if opts.ShouldShowWords() {
+		xs = append(xs, strconv.Itoa(c.Words))
+	}
+
+	if opts.ShouldShowBytes() {
+		xs = append(xs, strconv.Itoa(c.Bytes))
+	}
+
+	xs = append(xs, suffixes...)
+
+	line := strings.Join(xs, " ")
+
+	//nolint
+	fmt.Fprintln(w, line)
 }
 
 func GetCounts(file io.ReadSeeker) Counts {
 	const offsetStart = 0
 
 	bytes := CountBytes(file)
-	file.Seek(offsetStart, io.SeekStart)
+	_, _ = file.Seek(offsetStart, io.SeekStart)
 	lines := CountLines(file)
-	file.Seek(offsetStart, io.SeekStart)
+	_, _ = file.Seek(offsetStart, io.SeekStart)
 	words := CountWords(file)
 
 	return Counts{Bytes: bytes, Lines: lines, Words: words}
@@ -61,6 +76,7 @@ func CountFile(filename string) (Counts, error) {
 		return Counts{}, err
 	}
 
+	//nolint:errcheck // intentionally ignoring error for defer
 	defer file.Close()
 
 	return GetCounts(file), nil
@@ -86,6 +102,6 @@ func CountLines(r io.Reader) int {
 }
 
 func CountBytes(r io.Reader) int {
-	byteCount, _ := io.Copy(io.Discard, r)
+	byteCount, _ := io.Copy(io.Discard, r) //nolint:errcheck // intentionally ignoring error for discard
 	return int(byteCount)
 }
